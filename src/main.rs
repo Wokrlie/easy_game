@@ -1,4 +1,5 @@
 use bevy::{post_process::bloom::Bloom, prelude::*};
+use avian2d::prelude::*;
 
 pub struct GamePlugin;
 
@@ -10,7 +11,7 @@ struct MainCamera;
 
 fn main() {
     App::new()
-        .add_plugins(DefaultPlugins)
+        .add_plugins((DefaultPlugins, PhysicsPlugins::default()))
         .add_plugins(GamePlugin)
         .run();
 }
@@ -26,7 +27,8 @@ fn setup(mut commands: Commands) {
     commands.spawn((Player,
         Sprite::from_color(
         Srgba{ red: 0.0, green: 1.0, blue: 0.0, alpha: 1.0}, 
-        Vec2{ x: 50.0, y: 50.0})
+        Vec2{ x: 50.0, y: 50.0 }
+        )
     ));
 
     // Ground
