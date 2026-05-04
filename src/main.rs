@@ -15,10 +15,11 @@ fn setup(mut commands: Commands) {
             Bloom::NATURAL,
     ));
 
-    commands.spawn((Sprite, sprite: {
-        color: Color::srgb(100, 100, 255),
-        custom_size: Vec2(0, 0),
-    })
+    // Player
+    commands.spawn(Sprite::from_color(
+        Srgba{ red: 0.0, green: 1.0, blue: 0.0, alpha: 1.0}, 
+        Vec2{ x: 10.0, y:10.0})
+    );
 }
 
 impl Plugin for EntryPoint {
