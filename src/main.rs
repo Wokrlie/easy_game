@@ -28,7 +28,11 @@ fn setup(mut commands: Commands) {
         Sprite::from_color(
         Srgba{ red: 0.0, green: 1.0, blue: 0.0, alpha: 1.0}, 
         Vec2{ x: 50.0, y: 50.0 }
-        )
+        ),
+        RigidBody::Dynamic,
+        Collider::rectangle(50.0, 50.0),
+        LockedAxes::ROTATION_LOCKED,
+        Transform::from_xyz(0.0, 0.0, 0.0),
     ));
 
     // Ground
@@ -40,21 +44,21 @@ fn setup(mut commands: Commands) {
 
 fn update_player(
     keyboard_input: Res<ButtonInput<KeyCode>>,
-    time: Res<Time>,
-    mut query: Query<&mut Transform, With<Player>>
+    mut query: Query<&mut LinearVelocity, With<Player>>
 ) {
     // Input
-    const SPEED: f32 = 400.0;
-    for mut transform in query.iter_mut() {
-        let mut direction = Vec3::ZERO;
-        if keyboard_input.pressed(KeyCode::KeyA) { direction.x -= 1.0; }
-        if keyboard_input.pressed(KeyCode::KeyD) { direction.x += 1.0; }
-        if keyboard_input.pressed(KeyCode::KeyW) { direction.y += 1.0; }
-        if keyboard_input.pressed(KeyCode::KeyS) { direction.y -= 1.0; }
+    let Ok(mut velocity) = query.single_mut() else { return };
+    let speed = 400.0; 
+    let mut direction = Vec2::ZERO;
 
-        // CHANGED: `Transform`
-        transform.translation += direction * SPEED * time.delta_secs();
-    }
+    if keyboard_input.pressed(KeyCode::KeyA) { direction.x -= 1.0; }
+    if keyboard_input.pressed(KeyCode::KeyD) { direction.x += 1.0; }
+    if keyboard_input.pressed(KeyCode::KeyW) { direction.y += 1.0; }
+    if keyboard_input.pressed(KeyCode::KeyS) { direction.y -= 1.0; }
+
+    direction = direction.normalize_or_zero();
+    velocity.x = direction.x * speed;
+    velocity.y = direction.y * speed;
 }
 
 fn camera_follow(
