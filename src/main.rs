@@ -64,18 +64,24 @@ fn update_player(
 fn camera_follow(
     player_query: Query<&Transform, With<Player>>,
     mut camera_query: Query<&mut Transform, (With<Camera>, With<MainCamera>, Without<Player>)>,
+    time: Res<Time>,
 ) {
-    let Ok(player_transform) = player_query.single() else { return };
-    let Ok(mut camera_transform) = camera_query.single_mut() else { return };
+    let Ok(player_tf) = player_query.single() else { return };
+    let Ok(mut camera_tf) = camera_query.single_mut() else { return };
 
-    camera_transform.translation.x = player_transform.translation.x;
-    camera_transform.translation.y = player_transform.translation.y;
-    camera_transform.translation.z = player_transform.translation.z + 999.0;
+    // 跟随速度（值越大跟随越紧，建议 5~15）
+    let follow_speed = 8.0;
+    let target = player_tf.translation + Vec3::new(0.0, 0.0, 999.0);
+    
+    // 使用指数移动平均（帧速率无关）
+    let t = 1.0 - (-follow_speed * time.delta_secs()).exp();
+    camera_tf.translation = camera_tf.translation.lerp(target, t);
 }
 
 impl Plugin for GamePlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(Startup, setup);
-        app.add_systems(Update, (update_player, camera_follow));
+        app.add_systems(Startup, setup)
+            .add_systems(Update, update_player)
+            .add_systems(PostUpdate, camera_follow);
     }
 }
