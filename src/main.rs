@@ -69,11 +69,9 @@ fn camera_follow(
     let Ok(player_tf) = player_query.single() else { return };
     let Ok(mut camera_tf) = camera_query.single_mut() else { return };
 
-    // 跟随速度（值越大跟随越紧，建议 5~15）
     let follow_speed = 8.0;
     let target = player_tf.translation + Vec3::new(0.0, 0.0, 999.0);
     
-    // 使用指数移动平均（帧速率无关）
     let t = 1.0 - (-follow_speed * time.delta_secs()).exp();
     camera_tf.translation = camera_tf.translation.lerp(target, t);
 }
@@ -81,7 +79,6 @@ fn camera_follow(
 impl Plugin for GamePlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(Startup, setup)
-            .add_systems(Update, update_player)
-            .add_systems(PostUpdate, camera_follow);
+            .add_systems(Update, (update_player, camera_follow));
     }
 }
